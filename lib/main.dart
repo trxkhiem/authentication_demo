@@ -1,17 +1,20 @@
-import 'package:demo_project/screens/forgot_password_screen.dart';
-import 'package:demo_project/screens/register_screen.dart';
+import 'package:demo_project/screens/auth/forgot_password_screen.dart';
+import 'package:demo_project/screens/auth/register_screen.dart';
+import 'package:demo_project/screens/main_screen.dart';
 import 'package:flutter/material.dart';
-
+import 'package:firebase_core/firebase_core.dart';
 // import screen
-import 'package:demo_project/screens/login_screen.dart';
+import 'package:demo_project/screens/auth/login_screen.dart';
 
 
-void main() {
+Future main() async{
   try{
-
+    WidgetsFlutterBinding.ensureInitialized();
+    //firebase setting up
+    await Firebase.initializeApp();
     runApp(const MyApp());
   }catch(e){
-
+    print(e);
   }
 }
 
@@ -37,7 +40,10 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
         scaffoldBackgroundColor: Colors.white
       ),
-      home: const ForgotPasswordScreen(),
+      home: const MainScreen(),
     );
   }
 }
+
+
+
