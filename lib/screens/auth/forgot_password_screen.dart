@@ -1,7 +1,17 @@
 import 'package:flutter/material.dart';
+
+// widgets
 import 'package:demo_project/widgets/text_field_container.dart';
-import 'package:email_validator/email_validator.dart';
 import 'package:demo_project/widgets/rounded_button.dart';
+
+// external packages
+import 'package:email_validator/email_validator.dart';
+
+// services
+import 'package:demo_project/services/auth_services.dart';
+
+// utils
+import 'package:demo_project/utils/locator.dart';
 
 class ForgotPasswordScreen extends StatefulWidget {
   const ForgotPasswordScreen({Key? key}) : super(key: key);
@@ -14,8 +24,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final TextEditingController _emailField = TextEditingController();
-  final TextEditingController _passwordField = TextEditingController();
-
+  final AuthServices _authService = locator<AuthServices>();
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
@@ -48,7 +57,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                         Container(
                           margin: const EdgeInsets.symmetric(vertical: 10),
                           width: size.width * 0.8,
-                          child: Text(
+                          child: const Text(
                               "Enter the email address associated with your account and we'll email you a link to reset the password."
                           ),
                         ),
@@ -88,8 +97,13 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                         ),
                         RoundedButton(
                           text: "Continue",
-                          press: (){
-                            //_login(context);
+                          press: () async{
+                            bool result = await _authService.resetPassword(_emailField.text.trim());
+                            if(result){
+                              return true;
+                            } else {
+                              return false;
+                            }
                           },
                         ),
                         const SizedBox(

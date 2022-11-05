@@ -14,7 +14,7 @@ Future main() async{
     await Firebase.initializeApp();
     runApp(const MyApp());
   }catch(e){
-    print(e);
+     print(e);
   }
 }
 
