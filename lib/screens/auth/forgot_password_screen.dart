@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 // widgets
 import 'package:demo_project/widgets/text_field_container.dart';
 import 'package:demo_project/widgets/rounded_button.dart';
+import 'package:demo_project/widgets/custom_dialog.dart';
 
 // external packages
 import 'package:email_validator/email_validator.dart';
@@ -25,6 +26,8 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final TextEditingController _emailField = TextEditingController();
   final AuthServices _authService = locator<AuthServices>();
+  bool isLoading = false;
+
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
@@ -83,7 +86,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                                 return 'Email is required';
                               } else {
                                 bool isValid = EmailValidator.validate(value);
-                                if (isValid){
+                                if (!isValid){
                                   return 'Please enter correct email';
                                 } else {
                                   return null;
@@ -98,12 +101,26 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                         RoundedButton(
                           text: "Continue",
                           press: () async{
-                            bool result = await _authService.resetPassword(_emailField.text.trim());
-                            if(result){
-                              return true;
-                            } else {
-                              return false;
+                            print("hello");
+                            try{
+                              bool result = await _authService.resetPassword(_emailField.text.trim());
+                              print ("result here");
+                              print (result);
+                              if(result){
+
+                              } else {
+                                showDialog(context: context,
+                                    builder: (BuildContext context) {
+                                      return CustomAlert();
+                                    });
+                              }
+                            } catch (e) {
+                              showDialog(context: context,
+                                  builder: (BuildContext context) {
+                                    return CustomAlert();
+                                  });
                             }
+
                           },
                         ),
                         const SizedBox(
@@ -114,7 +131,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                           child: RoundedButton(
                             text: "Cancel",
                             press: (){
-                              //_login(context);
+                              Navigator.pop(context);
                             },
                           ),
                         ),

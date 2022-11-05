@@ -1,17 +1,15 @@
-import 'package:demo_project/screens/auth/forgot_password_screen.dart';
-import 'package:demo_project/screens/auth/register_screen.dart';
-import 'package:demo_project/screens/main_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'utils/locator.dart';
 // import screen
-import 'package:demo_project/screens/auth/login_screen.dart';
-
+import 'package:demo_project/screens/main_screen.dart';
 
 Future main() async{
   try{
     WidgetsFlutterBinding.ensureInitialized();
     //firebase setting up
     await Firebase.initializeApp();
+    await setupLocator();
     runApp(const MyApp());
   }catch(e){
      print(e);

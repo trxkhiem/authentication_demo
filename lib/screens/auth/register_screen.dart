@@ -33,11 +33,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final TextEditingController _emailField = TextEditingController();
   final TextEditingController _confirmPassword = TextEditingController();
   // default values for gender and dob
-  String gender = "Gender";
-  String dob = "Date of birth";
 
-  // check if there is either gender or dob is missing
-  bool isMissed = false;
+  // String type to display date
+  String yob = "Year of birth";
+  List<String> yearList = <String>['Year of birth','before 1965', 'From 1965 to 2000', 'After 2000'];
+
+  List<String> genderList = <String>['Gender','Male', 'Female', 'Other'];
+  String gender = "Gender";
 
 
 
@@ -51,15 +53,21 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
 
   Future<void> _signup(BuildContext context) async {
-    setState(() {
-      isLoading = true;
-    });
+
     if (_formKey.currentState!.validate()) {
+      setState(() {
+        isLoading = true;
+      });
       try {
         final response = await _authService.register(_emailField.text.trim(), _passwordField.text.trim());
         if (response == "success"){
           // success then do add details to firestore
-          User user = User(name: _nameField.text, dob: DateTime.parse(dob), email: _emailField.text.trim(), gender: gender);
+          User user = User(
+              name: _nameField.text,
+              yob: yob == "Year of birth"?"": yob, // if user didn't choose any value, then send empty string
+              email: _emailField.text.trim(),
+              gender: gender == "Gender"? "": gender // if user didn't choose any value, then send empty string
+          );
           final addDetailsResponse = await _firestoreService.addUser(user);
           setState(() {
             isLoading = false;
@@ -67,6 +75,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
           if (addDetailsResponse){
             Navigator.pop(context);
           } else {
+            setState(() {
+              isLoading = false;
+            });
             // pop up dialog here
             showDialog(context: context,
                 builder: (BuildContext context) {
@@ -85,8 +96,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
         }
       } catch (e) {
         setState(() {
-          isLoading = true;
+          isLoading = false;
         });
+        print("debug error");
+        print(e);
         showDialog(context: context,
             builder: (BuildContext context) {
               return const CustomAlert(title: "WARNING");
@@ -95,54 +108,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
     }
   }
 
-  void _showPickOptionsDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: <Widget>[
-            ListTile(
-              title: const Text("Male"),
-              trailing: const Icon(
-                Icons.male_rounded
-              ),
-              onTap: () {
-                setState(() {
-                  gender = "Male";
-                });
-                Navigator.pop(context);
-              },
-            ),
-            ListTile(
-              title: const Text("Female"),
-              trailing: const Icon(
-                Icons.female_rounded
-              ),
-              onTap: () {
-                setState(() {
-                  gender = "Female";
-                });
-                Navigator.pop(context);
-              },
-            ),
-            ListTile(
-              title: const Text("Other"),
-              trailing: const Icon(
-                  Icons.transgender_rounded
-              ),
-              onTap: () {
-                setState(() {
-                  gender = "Other";
-                });
-                Navigator.pop(context);
-              },
-            )
-          ],
-        ),
-      ),
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -194,95 +159,101 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                 if (value == null || value.isEmpty) {
                                   return 'Name is required';
                                 } else {
-                                  bool isValid = EmailValidator.validate(value);
-                                  if (isValid){
-                                    return 'Please enter correct email';
-                                  } else {
-                                    return null;
-                                  }
+                                  return null;
                                 }
                               },
                             ),
                           ),
-                          GestureDetector(
-                            onTap: (){
-                                DatePicker.showDatePicker(context,
-                                    showTitleActions: true,
-                                    minTime: DateTime(1920, 1, 1),
-                                    maxTime: DateTime.now(),
-                                    onChanged: (date) {
-                                      setState(() {
-                                        dob = DateFormat('dd/MM/yyyy').format(date);
-                                      });
-                                    }, onConfirm: (date) {
-                                      setState(() {
-                                        dob = DateFormat('dd/MM/yyyy').format(date);
-                                      });
-                                    },
-                                    currentTime: DateTime.now(), locale: LocaleType.en);
-                              },
-                            child: TextFieldContainer(
-                              child: Padding(
-                                    padding: const EdgeInsets.symmetric(vertical: 12.0),
-                                    child: Row(
-                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                      children:  [
-                                         Text(
-                                           dob,
-                                           style: TextStyle(
-                                             fontSize: 16,
-                                             color:  dob == "Date of birth"?const Color(0xFF566071): Colors.black
-                                           ),
-                                         ),
-                                        const Icon(
-                                          Icons.keyboard_arrow_down_outlined
-                                        )
-                                      ],
-                                    ),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 10.0),
+                            child: SizedBox(
+                              width:size.width * 0.8,
+                              child: DropdownButtonFormField<String>(
+                                hint: const Text(
+                                  "Year of Birth",
+                                  style: TextStyle(
+                                      color: Colors.black87
                                   ),
-                            ),
-                          ),
-                          isMissed && dob == "Date of birth"?
-                          const Text(
-                              "This field is required",
-                            style: TextStyle(
-                              color: Colors.red,
-                              fontSize: 12
-                            ),
-                          ):const SizedBox(height: 0,),
-                          GestureDetector(
-                            onTap: (){
-                                  _showPickOptionsDialog(context);
+                                ),
+                                value: yob,
+                                icon: const Icon(
+                                  Icons.keyboard_arrow_down,
+                                  color: Color(0xff682bd7),
+                                ),
+                                elevation: 16,
+                                style: const TextStyle(color: Colors.black),
+                                decoration: InputDecoration(
+                                    enabledBorder: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(29),
+                                        borderSide: const BorderSide(width: 0.5, color:  Color(0xff682bd7),)
+                                    )
+                                ),
+                                onChanged: (String? value) {
+                                  // This is called when the user selects an item.
+                                  setState(() {
+                                    yob = value!;
+                                  });
                                 },
-                            child: TextFieldContainer(
-                              child: Padding(
-                                    padding: const EdgeInsets.symmetric(vertical: 12.0),
-                                    child: Row(
-                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Text(
-                                          gender,
-                                          style:  TextStyle(
-                                              fontSize: 16,
-                                            color:  gender == "Gender"?const Color(0xFF566071): Colors.black,
-                                          ),
-                                        ),
-                                        const Icon(
-                                            Icons.keyboard_arrow_down_outlined
-                                        )
-                                      ],
-                                    ),
-                                  ),
+                                onSaved: (String? value) {
+                                  // This is called when the user selects an item.
+                                  setState(() {
+                                    yob = value!;
+                                  });
+                                },
+                                items: yearList.map<DropdownMenuItem<String>>((String value) {
+                                  return DropdownMenuItem<String>(
+                                    value: value,
+                                    child: Text(value),
+                                  );
+                                }).toList(),
+                              ),
                             ),
                           ),
-                          isMissed && dob == "Gender"?
-                          const Text(
-                            "This field is required",
-                            style: TextStyle(
-                                color: Colors.red,
-                                fontSize: 12
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 10.0),
+                        child: SizedBox(
+                          width:size.width * 0.8,
+                          child: DropdownButtonFormField<String>(
+                            hint: const Text(
+                              "Gender",
+                              style: TextStyle(
+                                color: Colors.black87
+                              ),
                             ),
-                          ):const SizedBox(height: 0,),
+                            value: gender,
+                            icon: const Icon(
+                                Icons.keyboard_arrow_down,
+                              color: Color(0xff682bd7),
+                            ),
+                            elevation: 16,
+                            style: const TextStyle(color: Colors.black),
+                            decoration: InputDecoration(
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(29),
+                                borderSide: const BorderSide(width: 0.5, color:  Color(0xff682bd7),)
+                              )
+                            ),
+                            onChanged: (String? value) {
+                              // This is called when the user selects an item.
+                              setState(() {
+                                gender = value!;
+                              });
+                            },
+                            onSaved: (String? value) {
+                              // This is called when the user selects an item.
+                              setState(() {
+                                gender = value!;
+                              });
+                            },
+                            items: genderList.map<DropdownMenuItem<String>>((String value) {
+                              return DropdownMenuItem<String>(
+                                value: value,
+                                child: Text(value),
+                              );
+                            }).toList(),
+                          ),
+                        ),
+                      ),
                           TextFieldContainer(
                             child: TextFormField(
                               controller: _emailField,
@@ -301,7 +272,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                   return 'Email is required';
                                 } else {
                                   bool isValid = EmailValidator.validate(value);
-                                  if (isValid){
+                                  print("------");
+                                  print(isValid);
+                                  if (!isValid){
                                     return 'Please enter correct email';
                                   } else {
                                     return null;
@@ -397,13 +370,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     RoundedButton(
                       text: "Let's go",
                       press: (){
-                        setState(() {
-                          isMissed = false;
-                        });
-                        if (gender == "Gender" || dob == "Date of birth"){
-                          setState(() {
-                            isMissed = true;
-                          });
+                        if (!isChecked){
+                          showDialog(context: context,
+                              builder: (BuildContext context) {
+                                return const CustomAlert(title: "Privacy Agreement", alertMessage: "There is no agreed-upon privacy policy or terms of use.",);
+                              });
                         } else {
                           _signup(context);
                         }

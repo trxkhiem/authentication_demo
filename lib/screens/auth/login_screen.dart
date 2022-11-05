@@ -1,3 +1,4 @@
+import 'package:demo_project/screens/auth/forgot_password_screen.dart';
 import 'package:demo_project/screens/auth/register_screen.dart';
 import 'package:flutter/material.dart';
 
@@ -32,11 +33,11 @@ class _LoginScreenState extends State<LoginScreen> {
   bool isLoading = false;
 
   Future<void> _login(BuildContext context) async {
-    // invoke loading screen
-    setState(() {
-      isLoading = true;
-    });
     if (_formKey.currentState!.validate()) {
+      // invoke loading screen
+      setState(() {
+        isLoading = true;
+      });
       try {
         final response = await _authService.signIn(_emailField.text.trim(), _passwordField.text.trim());
         setState(() {
@@ -116,7 +117,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                   return 'Email is required';
                                 } else {
                                   bool isValid = EmailValidator.validate(value);
-                                  if (isValid){
+                                  if (!isValid){
                                     return 'Please enter correct email';
                                   } else {
                                     return null;
@@ -155,7 +156,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           RoundedButton(
                             text: "Let's go",
                             press: (){
-                              //_login(context);
+                              _login(context);
                             },
                           ),
                           const SizedBox(
@@ -163,14 +164,14 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                           GestureDetector(
                             onTap: (){
-                              // Navigator.push(
-                              //   context,
-                              //   MaterialPageRoute(
-                              //     builder: (context) {
-                              //       return ResetPasswordScreen();
-                              //     },
-                              //   ),
-                              // );
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) {
+                                    return ForgotPasswordScreen();
+                                  },
+                                ),
+                              );
                             },
                             child: const Text(
                               "Forgot your password",
@@ -207,7 +208,14 @@ class _LoginScreenState extends State<LoginScreen> {
                           RoundedButton(
                             text: "Register",
                             press: (){
-                              _login(context);
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) {
+                                    return const RegisterScreen();
+                                  },
+                                ),
+                              );
                             },
                           ),
                         ],

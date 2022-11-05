@@ -4,15 +4,17 @@ class FirestoreService{
   FirebaseFirestore firestoreService = FirebaseFirestore.instance;
 
   Future<bool> addUser(User user) async{
-    // Create a CollectionReference called users that references the firestore collection
-    final docUser = firestoreService.collection('users').doc(user.email);
-
-    // add data to docUser
-    final jsonData = user.toJson();
     try{
+      // Create a CollectionReference called users that references the firestore collection
+      final docUser = firestoreService.collection('users').doc(user.email);
+
+      // add data to docUser
+      final jsonData = user.toJson();
       docUser.set(jsonData);
       return true;
     } catch (e){
+      print("error firestore");
+      print(e);
       return false;
     }
   }

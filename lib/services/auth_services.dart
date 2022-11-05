@@ -42,6 +42,8 @@ class AuthServices{
       await FirebaseAuth.instance.sendPasswordResetEmail(email: email);
       return true;
     }catch(e){
+      print("reset password error");
+      print(e);
       return false;
     }
   }
