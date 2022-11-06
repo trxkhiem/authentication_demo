@@ -1,11 +1,21 @@
-import 'package:demo_project/services/auth_services.dart';
-import 'package:demo_project/widgets/rounded_button.dart';
 import 'package:flutter/material.dart';
+
+// services
+import 'package:demo_project/services/auth_services.dart';
+import 'package:demo_project/services/firestore_service.dart';
+
+// widgets
+import 'package:demo_project/widgets/custom_dialog.dart';
+import 'package:demo_project/widgets/rounded_button.dart';
+
+// utils
 import 'package:demo_project/models/user.dart';
+import 'package:demo_project/utils/locator.dart';
+
+// packages
 import 'package:loading_overlay/loading_overlay.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:demo_project/services/firestore_service.dart';
-import 'package:demo_project/utils/locator.dart';
+
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
 
@@ -18,6 +28,7 @@ class _HomeScreenState extends State<HomeScreen> {
   final AuthServices _authServices = locator<AuthServices>();
   bool isLoading = false;
   UserModel? user;
+  bool isVerified = false;
 
   @override
   void initState() {
@@ -29,16 +40,32 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> initData() async {
     setState(() {
       isLoading = true;
+
     });
     user = await _firestoreService.getUser(FirebaseAuth.instance.currentUser!.email!);
+
     setState(() {
       isLoading = false;
+      isVerified = FirebaseAuth.instance.currentUser!.emailVerified;
     });
   }
 
 
+  void refreshVerify() async{
+    setState(() {
+      isLoading = true;
+    });
+    await FirebaseAuth.instance.currentUser!.reload();
+    setState(() {
+      isLoading = false;
+      isVerified = FirebaseAuth.instance.currentUser!.emailVerified;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
+    print("user");
+    print(user);
     Size size = MediaQuery.of(context).size;
     return  Scaffold(
       body: LoadingOverlay(
@@ -77,14 +104,92 @@ class _HomeScreenState extends State<HomeScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Padding(
-                            padding: EdgeInsets.symmetric(vertical: 10.0),
-                            child: Text(
-                              "Profile",
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 20
-                              ),
+                           Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 20.0),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                const Text(
+                                  "Profile",
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 20
+                                  ),
+                                ),
+                                const SizedBox(width: 10,),
+                                isVerified? Row(
+                                  children: const [
+                                    Padding(
+                                      padding: EdgeInsets.symmetric(horizontal:5.0),
+                                      child: Text(
+                                        "Verified",
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          color: Colors.deepPurpleAccent
+                                        ),
+                                      ),
+                                    ),
+                                    Icon(
+                                      Icons.check_circle_outline_rounded,
+                                      color: Colors.deepPurple,
+                                    ),
+                                  ],
+                                ): Row(
+                                  children: [
+                                    ElevatedButton(
+                                      onPressed: () async {
+                                        setState(() {
+                                          isLoading = true;
+                                        });
+                                        bool result = await _authServices.verifyUser();
+                                        setState(() {
+                                          isLoading = false;
+                                        });
+                                        if (result){
+                                          showDialog(context: context,
+                                              builder: (BuildContext context) {
+                                                return const CustomAlert(
+                                                  title: "Email sent",
+                                                  alertMessage: "Please follow the sent email for verification.",
+                                                );
+                                              });
+                                        } else {
+                                          showDialog(context: context,
+                                              builder: (BuildContext context) {
+                                                return const CustomAlert();
+                                              });
+                                        }
+                                      },
+                                      style: ElevatedButton.styleFrom(
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(18.0),
+                                          ),
+                                          backgroundColor: Colors.deepPurpleAccent
+                                      ),
+                                      child: const Padding(
+                                        padding: EdgeInsets.all(5.0),
+                                        child: Text('Verify Email',
+                                          style: TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 12,
+                                              fontWeight: FontWeight.bold
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 10,),
+                                    GestureDetector(
+                                      onTap: (){
+                                        refreshVerify();
+                                      },
+                                      child: const Icon(
+                                        Icons.refresh,
+                                        size: 28,
+                                      ),
+                                    )
+                                  ],
+                                )
+                              ],
                             ),
                           ),
                           RichText(text: TextSpan(

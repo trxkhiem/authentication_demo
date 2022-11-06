@@ -1,4 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+
+// utils
 import 'package:demo_project/models/user.dart';
 class FirestoreService{
   FirebaseFirestore firestoreService = FirebaseFirestore.instance;
@@ -6,7 +8,7 @@ class FirestoreService{
   Future<bool> addUser(UserModel user) async{
     try{
       // Create a CollectionReference called users that references the firestore collection
-      final docUser = firestoreService.collection('users').doc(user.email);
+      final docUser = firestoreService.collection('users').doc(user.email.toLowerCase());
 
       // add data to docUser
       final jsonData = user.toJson();
@@ -23,7 +25,7 @@ class FirestoreService{
     try{
       final docUser = FirebaseFirestore.instance
           .collection('users')
-          .doc(email);
+          .doc(email.toLowerCase());
       final documentSnapshot = await docUser.get();
       if (documentSnapshot.exists) {
         return UserModel.fromJson(documentSnapshot.data()!);
@@ -31,6 +33,7 @@ class FirestoreService{
         return null;
       }
     } catch(e){
+      print("error get user");
       print(e); 
       return null;
     }

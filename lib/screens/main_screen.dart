@@ -1,5 +1,9 @@
-import 'package:demo_project/screens/auth/login_screen.dart';
 import 'package:flutter/material.dart';
+
+// screens
+import 'package:demo_project/screens/auth/login_screen.dart';
+
+// packages
 import 'package:firebase_auth/firebase_auth.dart';
 
 //screens

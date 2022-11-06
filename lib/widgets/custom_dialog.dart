@@ -15,32 +15,36 @@ class CustomAlert extends StatelessWidget {
           decoration: const BoxDecoration(
               borderRadius: BorderRadius.all(Radius.circular(30))
           ),
-          height: 200,
+          height: 250,
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 25),
             child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  title == null? 'ERROR': title!,
-                  style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color: Colors.red,
+                Column(
+                  children: [
+                    Text(
+                      title == null? 'ERROR': title!,
+                      style:  TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: title != null && title == "Email sent"?Colors.green : Colors.red,
 
-                      fontSize: 20),
-                ),
-                const SizedBox(height: 10,),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal:20.0),
-                  child: Text(
-                    alertMessage == null? 'There is something wrong.\n Please check again!!': alertMessage!,
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(
-                        fontSize: 16,
-                        color: Colors.black87
+                          fontSize: 20),
                     ),
-                  ),
+                    const SizedBox(height: 10,),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal:20.0),
+                      child: Text(
+                        alertMessage == null? 'There is something wrong.\n Please check again!!': alertMessage!,
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(
+                            fontSize: 16,
+                            color: Colors.black87
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-                const SizedBox(height: 15,),
                 ElevatedButton(
                   onPressed: () {
                     Navigator.of(context).pop();
@@ -52,7 +56,7 @@ class CustomAlert extends StatelessWidget {
                     backgroundColor: Colors.deepPurpleAccent
                   ),
                   child: const Padding(
-                    padding: EdgeInsets.all(5.0),
+                    padding: EdgeInsets.symmetric(vertical: 5.0, horizontal: 15),
                     child: Text('OK',
                       style: TextStyle(
                           color: Colors.white,

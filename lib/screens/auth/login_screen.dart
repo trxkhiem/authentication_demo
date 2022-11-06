@@ -1,5 +1,3 @@
-import 'package:demo_project/screens/auth/forgot_password_screen.dart';
-import 'package:demo_project/screens/auth/register_screen.dart';
 import 'package:flutter/material.dart';
 
 // external packages
@@ -10,6 +8,10 @@ import 'package:loading_overlay/loading_overlay.dart';
 import 'package:demo_project/widgets/text_field_container.dart';
 import 'package:demo_project/widgets/rounded_button.dart';
 import 'package:demo_project/widgets/custom_dialog.dart';
+
+// screens
+import 'package:demo_project/screens/auth/forgot_password_screen.dart';
+import 'package:demo_project/screens/auth/register_screen.dart';
 
 // services
 import 'package:demo_project/services/auth_services.dart';
@@ -107,7 +109,6 @@ class _LoginScreenState extends State<LoginScreen> {
                                 errorStyle: TextStyle(
                                     color: Colors.red,
                                     fontSize: 14,
-                                    fontFamily: "Montserrat"
                                 ),
                                 hintText: "Email*",
                                 border: InputBorder.none,

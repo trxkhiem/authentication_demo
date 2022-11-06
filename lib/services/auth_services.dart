@@ -17,10 +17,14 @@ class AuthServices{
     }
   }
 
-
-  Future<void> verifyUser() async{
-    User user = FirebaseAuth.instance.currentUser!;
-    user.sendEmailVerification();
+  Future<bool> verifyUser() async{
+    try{
+      User user = FirebaseAuth.instance.currentUser!;
+      await user.sendEmailVerification();
+      return true;
+    } catch(e){
+      return false;
+    }
   }
 
   Future<String?> register(String email, String password) async {
@@ -37,14 +41,12 @@ class AuthServices{
     }
   }
 
-  Future <bool> resetPassword(String email) async{
+  Future <String> resetPassword(String email) async{
     try{
       await FirebaseAuth.instance.sendPasswordResetEmail(email: email);
-      return true;
-    }catch(e){
-      print("reset password error");
-      print(e);
-      return false;
+      return "success";
+    }on FirebaseAuthException catch (e){
+      return e.message?? "Something went wrong";
     }
   }
 

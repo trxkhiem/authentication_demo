@@ -13,6 +13,7 @@ import 'package:demo_project/services/auth_services.dart';
 
 // utils
 import 'package:demo_project/utils/locator.dart';
+import 'package:loading_overlay/loading_overlay.dart';
 
 class ForgotPasswordScreen extends StatefulWidget {
   const ForgotPasswordScreen({Key? key}) : super(key: key);
@@ -34,111 +35,123 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
-          child: SingleChildScrollView(
-            child: Container(
-              margin: EdgeInsets.only(top: size.height * 0.07),
-              width: size.width,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Form(
-                    key: _formKey,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          "Forgot password",
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 32,
-                              color: Color(0xff682bd7)
-                          ),
-                        ),
-                        const SizedBox(
-                          height: 10,
-                        ),
-                        Container(
-                          margin: const EdgeInsets.symmetric(vertical: 10),
-                          width: size.width * 0.8,
-                          child: const Text(
-                              "Enter the email address associated with your account and we'll email you a link to reset the password."
-                          ),
-                        ),
-                        const SizedBox(
-                          height: 10,
-                        ),
-                        TextFieldContainer(
-                          child: TextFormField(
-                            controller: _emailField,
-                            keyboardType: TextInputType.text,
-                            cursorColor: const Color(0xff682bd7),
-                            decoration: const InputDecoration(
-                              errorStyle: TextStyle(
-                                  color: Colors.red,
-                                  fontSize: 14,
-                                  fontFamily: "Montserrat"
-                              ),
-                              hintText: "Email*",
-                              border: InputBorder.none,
+          child: LoadingOverlay(
+            opacity: 0.4,
+            color: Colors.deepPurpleAccent,
+            isLoading: isLoading,
+            child: SingleChildScrollView(
+              child: Container(
+                margin: EdgeInsets.only(top: size.height * 0.07),
+                width: size.width,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Form(
+                      key: _formKey,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            "Forgot password",
+                            style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 32,
+                                color: Color(0xff682bd7)
                             ),
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'Email is required';
-                              } else {
-                                bool isValid = EmailValidator.validate(value);
-                                if (!isValid){
-                                  return 'Please enter correct email';
-                                } else {
-                                  return null;
-                                }
-                              }
-                            },
                           ),
-                        ),
-                        const SizedBox(
-                          height: 10,
-                        ),
-                        RoundedButton(
-                          text: "Continue",
-                          press: () async{
-                            print("hello");
-                            try{
-                              bool result = await _authService.resetPassword(_emailField.text.trim());
-                              print ("result here");
-                              print (result);
-                              if(result){
-
-                              } else {
+                          const SizedBox(
+                            height: 10,
+                          ),
+                          Container(
+                            margin: const EdgeInsets.symmetric(vertical: 10),
+                            width: size.width * 0.8,
+                            child: const Text(
+                                "Enter the email address associated with your account and we'll email you a link to reset the password."
+                            ),
+                          ),
+                          const SizedBox(
+                            height: 10,
+                          ),
+                          TextFieldContainer(
+                            child: TextFormField(
+                              controller: _emailField,
+                              keyboardType: TextInputType.text,
+                              cursorColor: const Color(0xff682bd7),
+                              decoration: const InputDecoration(
+                                errorStyle: TextStyle(
+                                    color: Colors.red,
+                                    fontSize: 14,
+                                ),
+                                hintText: "Email*",
+                                border: InputBorder.none,
+                              ),
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'Email is required';
+                                } else {
+                                  bool isValid = EmailValidator.validate(value);
+                                  if (!isValid){
+                                    return 'Please enter correct email';
+                                  } else {
+                                    return null;
+                                  }
+                                }
+                              },
+                            ),
+                          ),
+                          const SizedBox(
+                            height: 10,
+                          ),
+                          RoundedButton(
+                            text: "Continue",
+                            press: () async{
+                              try{
+                                setState(() {
+                                  isLoading = true;
+                                });
+                                String result = await _authService.resetPassword(_emailField.text.trim());
+                                setState(() {
+                                  isLoading = false;
+                                });
+                                if(result == "success"){
+                                  showDialog(context: context,
+                                      builder: (BuildContext context) {
+                                        return const CustomAlert(
+                                          title: "Email sent",
+                                          alertMessage: "Please follow the email to reset your password.",
+                                        );
+                                      });
+                                } else {
+                                  showDialog(context: context,
+                                      builder: (BuildContext context) {
+                                        return  CustomAlert(alertMessage: result,);
+                                      });
+                                }
+                              } catch (e) {
                                 showDialog(context: context,
                                     builder: (BuildContext context) {
-                                      return CustomAlert();
+                                      return  const CustomAlert();
                                     });
                               }
-                            } catch (e) {
-                              showDialog(context: context,
-                                  builder: (BuildContext context) {
-                                    return CustomAlert();
-                                  });
-                            }
-
-                          },
-                        ),
-                        const SizedBox(
-                          height: 10,
-                        ),
-                        Opacity(
-                          opacity: 0.5,
-                          child: RoundedButton(
-                            text: "Cancel",
-                            press: (){
-                              Navigator.pop(context);
                             },
                           ),
-                        ),
-                      ],
+                          const SizedBox(
+                            height: 10,
+                          ),
+                          Opacity(
+                            opacity: 0.5,
+                            child: RoundedButton(
+                              text: "Cancel",
+                              press: (){
+                                Navigator.pop(context);
+                              },
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           )

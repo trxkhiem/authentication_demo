@@ -1,15 +1,15 @@
-import 'package:demo_project/models/user.dart';
-import 'package:demo_project/widgets/custom_dialog.dart';
 import 'package:flutter/material.dart';
 
 // external packages
 import 'package:intl/intl.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
+import 'package:loading_overlay/loading_overlay.dart';
 
 // widgets
 import 'package:demo_project/widgets/text_field_container.dart';
 import 'package:demo_project/widgets/rounded_button.dart';
+import 'package:demo_project/widgets/custom_dialog.dart';
 
 // services
 import 'package:demo_project/services/auth_services.dart';
@@ -17,7 +17,7 @@ import 'package:demo_project/services/firestore_service.dart';
 
 // utils
 import 'package:demo_project/utils/locator.dart';
-import 'package:loading_overlay/loading_overlay.dart';
+import 'package:demo_project/models/user.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({Key? key}) : super(key: key);
@@ -32,7 +32,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final TextEditingController _nameField = TextEditingController();
   final TextEditingController _emailField = TextEditingController();
   final TextEditingController _confirmPassword = TextEditingController();
-  // default values for gender and dob
 
   // String type to display date
   String yob = "Year of birth";
@@ -64,9 +63,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
           // success then do add details to firestore
           UserModel user = UserModel(
               name: _nameField.text,
-              yob: yob == "Year of birth"?"": yob, // if user didn't choose any value, then send empty string
+              yob: yob == "Year of birth"?" ": yob, // if user didn't choose any value, then send empty string
               email: _emailField.text.trim(),
-              gender: gender == "Gender"? "": gender // if user didn't choose any value, then send empty string
+              gender: gender == "Gender"? " ": gender // if user didn't choose any value, then send empty string
           );
           final addDetailsResponse = await _firestoreService.addUser(user);
           setState(() {
@@ -121,7 +120,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
             color: Colors.deepPurple,
             child: SingleChildScrollView(
               child: Container(
-                margin: EdgeInsets.only(top: size.height * 0.07),
+                margin: EdgeInsets.only(top: size.height * 0.05),
                 width: size.width,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
@@ -331,7 +330,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                   if (value.length < 8){
                                     return 'Password needs to be at least 8 characters long.';
                                   }  else if(value != _passwordField.text){
-                                    return 'Password does not match';
+                                    return 'Confirmed password does not match';
                                   }
                                   else {
                                     return null;
