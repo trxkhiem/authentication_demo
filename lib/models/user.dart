@@ -1,10 +1,10 @@
-class User{
+class UserModel{
   final String name;
   final String yob;
   final String gender;
   final String email;
 
-  User({required this.name, required this.yob, required this.gender, required this.email});
+  UserModel({required this.name, required this.yob, required this.gender, required this.email});
 
    Map<String, dynamic> toJson() => {
      'name': name,
@@ -13,7 +13,7 @@ class User{
      'email': email
    };
 
-   static User fromJson(Map <String, dynamic> json) => User(
+   static UserModel fromJson(Map <String, dynamic> json) => UserModel(
      name: json['name'],
      yob: json['yob'],
      gender: json['gender'],

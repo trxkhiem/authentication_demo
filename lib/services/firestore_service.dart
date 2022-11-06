@@ -3,7 +3,7 @@ import 'package:demo_project/models/user.dart';
 class FirestoreService{
   FirebaseFirestore firestoreService = FirebaseFirestore.instance;
 
-  Future<bool> addUser(User user) async{
+  Future<bool> addUser(UserModel user) async{
     try{
       // Create a CollectionReference called users that references the firestore collection
       final docUser = firestoreService.collection('users').doc(user.email);
@@ -19,14 +19,14 @@ class FirestoreService{
     }
   }
 
-  Future<User?> getUser(String email) async {
+  Future<UserModel?> getUser(String email) async {
     try{
       final docUser = FirebaseFirestore.instance
           .collection('users')
           .doc(email);
       final documentSnapshot = await docUser.get();
       if (documentSnapshot.exists) {
-        return User.fromJson(documentSnapshot.data()!);
+        return UserModel.fromJson(documentSnapshot.data()!);
       } else {
         return null;
       }

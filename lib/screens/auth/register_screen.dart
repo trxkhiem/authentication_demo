@@ -62,7 +62,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         final response = await _authService.register(_emailField.text.trim(), _passwordField.text.trim());
         if (response == "success"){
           // success then do add details to firestore
-          User user = User(
+          UserModel user = UserModel(
               name: _nameField.text,
               yob: yob == "Year of birth"?"": yob, // if user didn't choose any value, then send empty string
               email: _emailField.text.trim(),
